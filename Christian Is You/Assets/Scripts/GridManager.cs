@@ -18,7 +18,7 @@ public class GridManager : MonoBehaviour
     void Start()
     {
         cellSize = cellPrefab.transform.localScale.x;
-        Debug.Log("Cell size: " + cellSize);
+        //Debug.Log("Cell size: " + cellSize);
         PlayerMovement movement = player.GetComponent<PlayerMovement>(); 
         CreateGrid();
 
@@ -40,7 +40,7 @@ public class GridManager : MonoBehaviour
 
         // Center camera.
         cam.transform.position = new Vector3((float)width/2 - 0.5f, (float)height/2 - 0.5f, -10);
-        Debug.Log("New camera position: " + cam.transform.position);
+        //Debug.Log("New camera position: " + cam.transform.position);
     }
 
     Vector3 GetCellClosestToPosition(Vector3 position)
@@ -48,7 +48,7 @@ public class GridManager : MonoBehaviour
         float closestX = 0;
         float closestY = 0;
 
-        Debug.Log("Starting position before: " + position);
+        //Debug.Log("Starting position before: " + position);
         if (!(position.x % cellSize == 0) || !(position.y % cellSize == 0))
         {
             float offset;
@@ -67,7 +67,7 @@ public class GridManager : MonoBehaviour
             position = new Vector3(closestX, closestY, position.z);
         }
 
-        Debug.Log("Starting position after: " + position);
+        //Debug.Log("Starting position after: " + position);
         return position;
     }
 }

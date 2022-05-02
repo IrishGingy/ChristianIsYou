@@ -8,9 +8,4 @@ public class IsOperator : Object
     {
         AddAttribute("a2");
     }
-
-    private void Update()
-    {
-        CheckAttribute();
-    }
 }

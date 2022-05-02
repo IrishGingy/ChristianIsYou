@@ -5,6 +5,7 @@ using UnityEngine;
 public class Object : MonoBehaviour
 {
     public List<string> attributes;
+    public bool moving;
 
     [SerializeField] GameObject triggerPrefab;
 
@@ -15,10 +16,10 @@ public class Object : MonoBehaviour
     private GameObject leftSide;
 
     // triggers.
-    private Trigger aboveTrigger;
-    private Trigger belowTrigger;
-    private Trigger rightSideTrigger;
-    private Trigger leftSideTrigger;
+    protected Trigger aboveTrigger;
+    protected Trigger belowTrigger;
+    protected Trigger rightSideTrigger;
+    protected Trigger leftSideTrigger;
     List<Trigger> triggers = new List<Trigger>();
 
     private void Awake()
@@ -27,16 +28,16 @@ public class Object : MonoBehaviour
 
         // instantiate trigger game objects and change their name.
         above = Instantiate(triggerPrefab, new Vector3(transform.position.x, transform.position.y + 1, transform.position.z), Quaternion.identity, transform);
-        above.name = $"Above {above.transform.localPosition}";
+        above.name = "Above";
 
         below = Instantiate(triggerPrefab, new Vector3(transform.position.x, transform.position.y - 1, transform.position.z), Quaternion.identity, transform);
-        below.name = $"Below {below.transform.localPosition}";
+        below.name = "Below";
 
         rightSide = Instantiate(triggerPrefab, new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), Quaternion.identity, transform);
-        rightSide.name = $"RightSide {rightSide.transform.localPosition}";
+        rightSide.name = "RightSide";
 
         leftSide = Instantiate(triggerPrefab, new Vector3(transform.position.x - 1, transform.position.y, transform.position.z), Quaternion.identity, transform);
-        leftSide.name = $"LeftSide {leftSide.transform.localPosition}";
+        leftSide.name = "LeftSide";
 
         // get trigger components from objects and add them to the list of triggers.
         aboveTrigger = transform.GetChild(0).GetComponent<Trigger>();
@@ -50,6 +51,16 @@ public class Object : MonoBehaviour
 
         leftSideTrigger = transform.GetChild(3).GetComponent<Trigger>();
         triggers.Add(leftSideTrigger);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || 
+            Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
+        {
+            moving = true;
+            CheckAttribute();
+        }
     }
 
     public void AddAttribute(string attribute)
@@ -68,8 +79,9 @@ public class Object : MonoBehaviour
         {
             if (t.triggered)
             {
-                Debug.Log("I am " + t.name + " and I feel personally offended.");
+                Debug.Log("I am " + t.name + " and I feel personally offended by " + t.triggerer);
             }
         }
+        moving = false;
     }
 }
