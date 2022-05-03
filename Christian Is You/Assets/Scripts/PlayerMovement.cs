@@ -17,21 +17,25 @@ public class PlayerMovement : Object
         {
             // Move right
             right = true;
+            grid.UpdateGrid();
         }
         else if (Input.GetKeyDown(KeyCode.A))
         {
             // Move left
             left = true;
+            grid.UpdateGrid();
         }
         else if (Input.GetKeyDown(KeyCode.W))
         {
             // Move up
             up = true;
+            grid.UpdateGrid();
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
             // Move down
             down = true;
+            grid.UpdateGrid();
         }
     }
 
@@ -120,7 +124,7 @@ public class PlayerMovement : Object
     /// <param name="vertical">Negative 1 if moving down, positive 1 if moving up, 0 if not moving</param>
     public void Push(Trigger t)
     {
-        GameObject objectToPush = t.triggerer;
+        /*GameObject objectToPush = t.triggerer;
         List<GameObject> list = new List<GameObject>();
 
         list.Add(objectToPush.transform.Find(t.name).GetComponent<Trigger>().triggerer);
@@ -166,7 +170,7 @@ public class PlayerMovement : Object
             objectToPush = objectToPush.transform.Find(t.name).GetComponent<Trigger>().triggerer;
 
             transform.position = playerEndPosition;
-        } while (objectToPush != null);
+        } while (objectToPush != null);*/
 
 
         //Debug.Log("hello");

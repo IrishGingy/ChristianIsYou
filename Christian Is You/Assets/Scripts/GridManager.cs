@@ -6,17 +6,28 @@ public class GridManager : MonoBehaviour
 {
     public float cellSize { get; private set; }
 
-    [SerializeField] float width;
-    [SerializeField] float height;
+    [SerializeField] int width;
+    [SerializeField] int height;
     [SerializeField] GameObject startingPosition;
 
     [SerializeField] Transform cam;
     [SerializeField] GameObject player;
     [SerializeField] GameObject cellPrefab;
 
+    public bool[,] grid;
+
     // Start is called before the first frame update
     void Start()
     {
+        /*grid = new bool[height, width];
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+
+            }
+        }*/
+
         cellSize = cellPrefab.transform.localScale.x;
         //Debug.Log("Cell size: " + cellSize);
         PlayerMovement movement = player.GetComponent<PlayerMovement>(); 
@@ -29,13 +40,37 @@ public class GridManager : MonoBehaviour
 
     void CreateGrid()
     {
+        int xCount = 0;
+        int yCount = 0;
+
         for (float x = 0; x < width; x += cellSize)
         {
             for (float y = 0; y < height; y += cellSize)
             {
-                GameObject cell = Instantiate(cellPrefab, new Vector2(x, y), Quaternion.identity, this.transform);
+                GameObject cellObj = Instantiate(cellPrefab, new Vector2(x, y), Quaternion.identity, this.transform);
+                int[] loc = new int[2];
+                loc[0] = xCount;
+                loc[1] = yCount;
+
+                Cell cell = cellObj.GetComponent<Cell>();
+
+                // testing placing objects on grid by tag.
+                if (loc[0] == 2 && loc[2] == 2)
+                {
+                    PlaceObject(cell, "Christian");
+                    cell.occupied = true;
+                }
+                else
+                {
+                    cell.occupied = false;
+                }
+
+                cell.location = loc;
                 cell.name = $"Cell {x} {y}";
+                yCount++;
             }
+
+            xCount++;
         }
 
         // Center camera.
@@ -69,5 +104,16 @@ public class GridManager : MonoBehaviour
 
         //Debug.Log("Starting position after: " + position);
         return position;
+    }
+
+    public void UpdateGrid()
+    {
+        Debug.Log("Updating grid...");
+    }
+
+    public void PlaceObject(Cell cell, string tag)
+    {
+        //Instantiate(christianPrefab);
+        cell.tag = tag;
     }
 }
