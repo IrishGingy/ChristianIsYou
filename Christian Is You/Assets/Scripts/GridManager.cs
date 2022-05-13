@@ -110,44 +110,110 @@ public class GridManager : MonoBehaviour
 
     public void UpdateGrid(Vector3 position, string direction)
     {
-        List<GameObject> objectsToMove = new List<GameObject>();
+        Stack<GameObject> objectsToMove = new Stack<GameObject>();
         Vector3 directionVector = Vector3.zero;
         bool movingObjects = false;
+        Cell playerCell = grid[(int)position.x, (int)position.y];
+        Cell adjacentCell = null;
+        Cell nextCell = null;
 
         switch (direction)
         {
             case "right":
                 // right
                 directionVector = new Vector3(1, 0, 0);
+                adjacentCell = grid[(int)position.x + 1, (int)position.y];
+                nextCell = adjacentCell;
 
-                Cell adjacentCell = grid[(int)position.x + 1, (int)position.y];
-                if (adjacentCell.occupied)
+                if (nextCell.occupied)
                 {
-                    objectsToMove.Add(adjacentCell.occupiedBy);
+                    int i = 2;
+                    // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
+                    do
+                    {
+                        objectsToMove.Push(nextCell.occupiedBy);
+                        nextCell = grid[(int)position.x + i, (int)position.y];
+                        i++;
+                    } while (nextCell.occupied);
                     movingObjects = true;
+                }
+
+                /*if (adjacentCell.occupied)
+                {
+                    //Cell curCell = grid[(int)position.x, (int)position.y];
+                    objectsToMove.Push(currentCell.occupiedBy);
 
                     int i = 2;
                     Cell nextAdjacentCell = grid[(int)position.x + i, (int)position.y];
                     // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
                     while (nextAdjacentCell.occupied)
                     {
-                        objectsToMove.Add(nextAdjacentCell.occupiedBy);
+                        objectsToMove.Push(nextAdjacentCell.occupiedBy);
                         i++;
                         nextAdjacentCell = grid[(int)position.x + i, (int)position.y];
                     }
-                }
+                }*/
+
                 break;
             case "left":
                 // left
                 directionVector = new Vector3(-1, 0, 0);
+                adjacentCell = grid[(int)position.x - 1, (int)position.y];
+                nextCell = adjacentCell;
+
+                if (nextCell.occupied)
+                {
+                    int i = 2;
+                    // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
+                    do
+                    {
+                        objectsToMove.Push(nextCell.occupiedBy);
+                        nextCell = grid[(int)position.x - i, (int)position.y];
+                        i++;
+                    } while (nextCell.occupied);
+                    movingObjects = true;
+                }
+
                 break;
             case "up":
                 // up
                 directionVector = new Vector3(0, 1, 0);
+                adjacentCell = grid[(int)position.x, (int)position.y + 1];
+                nextCell = adjacentCell;
+
+                if (nextCell.occupied)
+                {
+                    int i = 2;
+                    // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
+                    do
+                    {
+                        objectsToMove.Push(nextCell.occupiedBy);
+                        nextCell = grid[(int)position.x, (int)position.y + i];
+                        i++;
+                    } while (nextCell.occupied);
+                    movingObjects = true;
+                }
+
                 break;
             case "down":
                 // down
                 directionVector = new Vector3(0, -1, 0);
+                adjacentCell = grid[(int)position.x, (int)position.y - 1];
+                nextCell = adjacentCell;
+
+                if (nextCell.occupied)
+                {
+                    int i = 2;
+                    // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
+                    do
+                    {
+                        objectsToMove.Push(nextCell.occupiedBy);
+                        nextCell = grid[(int)position.x, (int)position.y - i];
+                        i++;
+                    } while (nextCell.occupied);
+                    movingObjects = true;
+                }
+
                 break;
             default:
                 Debug.Log("Unknown direction to update grid...");
@@ -156,14 +222,57 @@ public class GridManager : MonoBehaviour
 
         if (movingObjects)
         {
-            foreach (GameObject g in objectsToMove)
+            // moving objects backwards (from last object put on stack to player).
+            while (objectsToMove.Count > 0)
             {
-                g.transform.position += directionVector;
+                GameObject currentObject = objectsToMove.Pop();
+                Cell currentCell = grid[(int)currentObject.transform.position.x, (int)currentObject.transform.position.y];
+                currentObject.transform.position += directionVector;
+                Vector3 movedObjectPosition = currentObject.transform.position;
+                Cell destinationCell = grid[(int)movedObjectPosition.x, (int)movedObjectPosition.y];
+                UpdateObjectOnGrid(currentCell, destinationCell, currentObject);
             }
+
             player.transform.position += directionVector;
+
+            /* // while next object to move isn't the player...
+             while (objectsToMove.Count > 0)
+             {
+                 GameObject curObject = objectsToMove.Pop();
+                 Vector3 curPos = curObject.transform.position;
+                 Cell curCell = grid[(int)curPos.x, (int)curPos.y];
+                 curObject.transform.position += directionVector;
+                 nextCell = grid[(int)curObject.transform.position.x, (int)curObject.transform.position.y];
+                 if (objectsToMove.Count != 1)
+                 {
+                     UpdateObjectOnGrid(nextCell, curObject);
+                 }
+                 else
+                 {
+                     UpdateObjectOnGrid(nextCell);
+                 }
+                 //prevCell = curCell;
+             }
+            */
+            Debug.Log("Updating grid...");
+
+
+
+            /*
+            UpdateCell(prevCell);
+            while (objectsToMove.Count > 1)
+            {
+                GameObject obj = objectsToMove.Pop();
+                Vector3 objectPos = obj.transform.position;
+                obj.transform.position += directionVector;
+                Cell objectsCell = grid[(int)objectPos.x, (int)objectPos.y];
+                UpdateCell(objectsCell, prevCell);
+                prevCell = grid[(int)objectPos.x, (int)objectPos.y];
+            }
+            */
         }
 
-        Debug.Log("Updating grid...");
+        UpdatePlayerOnGrid(playerCell, adjacentCell);
     }
 
     public void PlaceObject(GameObject prefab, Cell cell)
@@ -180,5 +289,37 @@ public class GridManager : MonoBehaviour
     private void SetGridDimensions(int w, int h)
     {
         grid = new Cell[w, h];
+    }
+
+    /*private void UpdateCell(Cell curCell, GameObject curObject = null)
+    {
+        if (curObject)
+        {
+            curCell.occupied = true;
+            curCell.occupiedBy = curObject;
+        }
+        else
+        {
+            curCell.occupied = false;
+            curCell.occupiedBy = curObject;
+        }
+    }*/
+
+    private void UpdatePlayerOnGrid(Cell previous, Cell current)
+    {
+        previous.occupied = false;
+        previous.occupiedBy = null;
+
+        current.occupied = true;
+        current.occupiedBy = player;
+    }
+
+    private void UpdateObjectOnGrid(Cell start, Cell destination, GameObject obj)
+    {
+        start.occupied = false;
+        start.occupiedBy = null;
+
+        destination.occupied = true;
+        destination.occupiedBy = obj;
     }
 }
