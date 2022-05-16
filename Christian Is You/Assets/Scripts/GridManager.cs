@@ -72,8 +72,10 @@ public class GridManager : MonoBehaviour
             }
         }
 
+        // Christian is You
         PlaceObject(cellPrefabs[1], grid[3, 3]);
-        PlaceObject(cellPrefabs[1], grid[4, 3]);
+        PlaceObject(cellPrefabs[2], grid[4, 3]);
+        PlaceObject(cellPrefabs[3], grid[5, 3]);
 
         // Center camera.
         cam.transform.position = new Vector3((float)width/2 - 0.5f, (float)height/2 - 0.5f, -10);
