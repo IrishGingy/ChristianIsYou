@@ -20,7 +20,7 @@ public class Object : MonoBehaviour
     protected Trigger belowTrigger;
     protected Trigger rightSideTrigger;
     protected Trigger leftSideTrigger;
-    List<Trigger> triggers = new List<Trigger>();
+    protected List<Trigger> triggers = new List<Trigger>();
 
     private void Awake()
     {
@@ -51,6 +51,8 @@ public class Object : MonoBehaviour
 
         leftSideTrigger = transform.GetChild(3).GetComponent<Trigger>();
         triggers.Add(leftSideTrigger);
+
+        CheckAttribute();
     }
 
     private void Update()
@@ -59,6 +61,13 @@ public class Object : MonoBehaviour
             Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
         {
             moving = true;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (moving)
+        {
             CheckAttribute();
         }
     }
@@ -73,7 +82,7 @@ public class Object : MonoBehaviour
         attributes.Remove(attribute);
     }
 
-    public void CheckAttribute()
+    public virtual void CheckAttribute()
     {
         foreach (Trigger t in triggers)
         {

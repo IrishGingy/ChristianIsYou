@@ -16,6 +16,8 @@ public class GridManager : MonoBehaviour
 
     public Cell[,] grid;
 
+    private bool direction;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,12 +51,12 @@ public class GridManager : MonoBehaviour
             {
                 GameObject backgroundCell = Instantiate(cellPrefabs[0], new Vector2(x, y), Quaternion.identity, this.transform);
                 int[] loc = new int[2];
-                loc[0] = (int)x;
-                loc[1] = (int)y;
+                loc[0] = Mathf.RoundToInt(x);
+                loc[1] = Mathf.RoundToInt(y);
 
                 Cell cell = backgroundCell.GetComponent<Cell>();
 
-                grid[(int)x, (int)y] = cell;
+                grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
 
                 /*// testing placing objects on grid by tag.
                 if (loc[0] == 3 && loc[1] == 4)
@@ -74,7 +76,7 @@ public class GridManager : MonoBehaviour
 
         // Christian is You
         PlaceObject(cellPrefabs[1], grid[3, 3]);
-        PlaceObject(cellPrefabs[2], grid[4, 3]);
+        /*PlaceObject(cellPrefabs[2], grid[4, 3]);*/
         PlaceObject(cellPrefabs[3], grid[5, 3]);
 
         // Center camera.
@@ -115,7 +117,7 @@ public class GridManager : MonoBehaviour
         Stack<GameObject> objectsToMove = new Stack<GameObject>();
         Vector3 directionVector = Vector3.zero;
         bool movingObjects = false;
-        Cell playerCell = grid[(int)position.x, (int)position.y];
+        Cell playerCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y)];
         Cell adjacentCell = null;
         Cell nextCell = null;
 
@@ -124,7 +126,7 @@ public class GridManager : MonoBehaviour
             case "right":
                 // right
                 directionVector = new Vector3(1, 0, 0);
-                adjacentCell = grid[(int)position.x + 1, (int)position.y];
+                adjacentCell = grid[Mathf.RoundToInt(position.x + 1), Mathf.RoundToInt(position.y)];
                 nextCell = adjacentCell;
 
                 if (nextCell.occupied)
@@ -134,7 +136,7 @@ public class GridManager : MonoBehaviour
                     do
                     {
                         objectsToMove.Push(nextCell.occupiedBy);
-                        nextCell = grid[(int)position.x + i, (int)position.y];
+                        nextCell = grid[Mathf.RoundToInt(position.x + i), Mathf.RoundToInt(position.y)];
                         i++;
                     } while (nextCell.occupied);
                     movingObjects = true;
@@ -160,7 +162,7 @@ public class GridManager : MonoBehaviour
             case "left":
                 // left
                 directionVector = new Vector3(-1, 0, 0);
-                adjacentCell = grid[(int)position.x - 1, (int)position.y];
+                adjacentCell = grid[Mathf.RoundToInt(position.x - 1), Mathf.RoundToInt(position.y)];
                 nextCell = adjacentCell;
 
                 if (nextCell.occupied)
@@ -170,7 +172,7 @@ public class GridManager : MonoBehaviour
                     do
                     {
                         objectsToMove.Push(nextCell.occupiedBy);
-                        nextCell = grid[(int)position.x - i, (int)position.y];
+                        nextCell = grid[Mathf.RoundToInt(position.x - i), Mathf.RoundToInt(position.y)];
                         i++;
                     } while (nextCell.occupied);
                     movingObjects = true;
@@ -180,7 +182,7 @@ public class GridManager : MonoBehaviour
             case "up":
                 // up
                 directionVector = new Vector3(0, 1, 0);
-                adjacentCell = grid[(int)position.x, (int)position.y + 1];
+                adjacentCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y + 1)];
                 nextCell = adjacentCell;
 
                 if (nextCell.occupied)
@@ -190,7 +192,7 @@ public class GridManager : MonoBehaviour
                     do
                     {
                         objectsToMove.Push(nextCell.occupiedBy);
-                        nextCell = grid[(int)position.x, (int)position.y + i];
+                        nextCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y + i)];
                         i++;
                     } while (nextCell.occupied);
                     movingObjects = true;
@@ -200,7 +202,7 @@ public class GridManager : MonoBehaviour
             case "down":
                 // down
                 directionVector = new Vector3(0, -1, 0);
-                adjacentCell = grid[(int)position.x, (int)position.y - 1];
+                adjacentCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y - 1)];
                 nextCell = adjacentCell;
 
                 if (nextCell.occupied)
@@ -210,7 +212,7 @@ public class GridManager : MonoBehaviour
                     do
                     {
                         objectsToMove.Push(nextCell.occupiedBy);
-                        nextCell = grid[(int)position.x, (int)position.y - i];
+                        nextCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y - i)];
                         i++;
                     } while (nextCell.occupied);
                     movingObjects = true;
@@ -228,10 +230,27 @@ public class GridManager : MonoBehaviour
             while (objectsToMove.Count > 0)
             {
                 GameObject currentObject = objectsToMove.Pop();
-                Cell currentCell = grid[(int)currentObject.transform.position.x, (int)currentObject.transform.position.y];
+                Cell currentCell = grid[Mathf.RoundToInt(currentObject.transform.position.x), Mathf.RoundToInt(currentObject.transform.position.y)];
                 currentObject.transform.position += directionVector;
-                Vector3 movedObjectPosition = currentObject.transform.position;
-                Cell destinationCell = grid[(int)movedObjectPosition.x, (int)movedObjectPosition.y];
+
+                Cell destinationCell = currentCell;
+                if (direction == "right")
+                {
+                    destinationCell = grid[currentCell.location[0] + 1, currentCell.location[1]];
+                }
+                if (direction == "left")
+                {
+                    destinationCell = grid[currentCell.location[0] - 1, currentCell.location[1]];
+                }
+                if (direction == "up")
+                {
+                    destinationCell = grid[currentCell.location[0], currentCell.location[1] + 1];
+                }
+                if (direction == "down")
+                {
+                    destinationCell = grid[currentCell.location[0], currentCell.location[1] - 1];
+                }
+
                 UpdateObjectOnGrid(currentCell, destinationCell, currentObject);
             }
 
