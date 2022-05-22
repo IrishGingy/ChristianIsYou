@@ -12,6 +12,7 @@ public class IsOperator : Object
     private void Start()
     {
         AddAttribute("a2");
+        CheckAttribute();
     }
 
     public override void CheckAttribute()

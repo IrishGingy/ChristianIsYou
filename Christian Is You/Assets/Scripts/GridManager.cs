@@ -49,14 +49,29 @@ public class GridManager : MonoBehaviour
         {
             for (float y = 0; y < height; y += cellSize)
             {
-                GameObject backgroundCell = Instantiate(cellPrefabs[0], new Vector2(x, y), Quaternion.identity, this.transform);
                 int[] loc = new int[2];
-                loc[0] = Mathf.RoundToInt(x);
-                loc[1] = Mathf.RoundToInt(y);
+                Cell cell;
+                // Place border cells (walls).
+                if (x == 0 || x == (width - 1) || y == 0 || y == (height - 1))
+                {
+                    GameObject wallCell = Instantiate(cellPrefabs[4], new Vector2(x, y), Quaternion.identity, this.transform);
+                    loc[0] = Mathf.RoundToInt(x);
+                    loc[1] = Mathf.RoundToInt(y);
 
-                Cell cell = backgroundCell.GetComponent<Cell>();
+                    cell = wallCell.GetComponent<Cell>();
 
-                grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
+                    grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
+                }
+                else
+                {
+                    GameObject backgroundCell = Instantiate(cellPrefabs[0], new Vector2(x, y), Quaternion.identity, this.transform);
+                    loc[0] = Mathf.RoundToInt(x);
+                    loc[1] = Mathf.RoundToInt(y);
+
+                    cell = backgroundCell.GetComponent<Cell>();
+
+                    grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
+                }
 
                 /*// testing placing objects on grid by tag.
                 if (loc[0] == 3 && loc[1] == 4)
@@ -76,7 +91,7 @@ public class GridManager : MonoBehaviour
 
         // Christian is You
         PlaceObject(cellPrefabs[1], grid[3, 3]);
-        /*PlaceObject(cellPrefabs[2], grid[4, 3]);*/
+        PlaceObject(cellPrefabs[2], grid[4, 3]);
         PlaceObject(cellPrefabs[3], grid[5, 3]);
 
         // Center camera.
@@ -112,14 +127,14 @@ public class GridManager : MonoBehaviour
         return position;
     }
 
-    public void UpdateGrid(Vector3 position, string direction)
+    public bool UpdateGrid(Vector3 position, string direction)
     {
         Stack<GameObject> objectsToMove = new Stack<GameObject>();
         Vector3 directionVector = Vector3.zero;
         bool movingObjects = false;
         Cell playerCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y)];
         Cell adjacentCell = null;
-        Cell nextCell = null;
+        bool movePlayer = false;
 
         switch (direction)
         {
@@ -127,20 +142,8 @@ public class GridManager : MonoBehaviour
                 // right
                 directionVector = new Vector3(1, 0, 0);
                 adjacentCell = grid[Mathf.RoundToInt(position.x + 1), Mathf.RoundToInt(position.y)];
-                nextCell = adjacentCell;
 
-                if (nextCell.occupied)
-                {
-                    int i = 2;
-                    // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
-                    do
-                    {
-                        objectsToMove.Push(nextCell.occupiedBy);
-                        nextCell = grid[Mathf.RoundToInt(position.x + i), Mathf.RoundToInt(position.y)];
-                        i++;
-                    } while (nextCell.occupied);
-                    movingObjects = true;
-                }
+                objectsToMove = PopulateObjectsToMove(direction, adjacentCell, objectsToMove, position, out movingObjects, out movePlayer);
 
                 /*if (adjacentCell.occupied)
                 {
@@ -163,9 +166,10 @@ public class GridManager : MonoBehaviour
                 // left
                 directionVector = new Vector3(-1, 0, 0);
                 adjacentCell = grid[Mathf.RoundToInt(position.x - 1), Mathf.RoundToInt(position.y)];
-                nextCell = adjacentCell;
 
-                if (nextCell.occupied)
+                objectsToMove = PopulateObjectsToMove(direction, adjacentCell, objectsToMove, position, out movingObjects, out movePlayer);
+
+                /*if (nextCell.occupied)
                 {
                     int i = 2;
                     // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
@@ -176,16 +180,17 @@ public class GridManager : MonoBehaviour
                         i++;
                     } while (nextCell.occupied);
                     movingObjects = true;
-                }
+                }*/
 
                 break;
             case "up":
                 // up
                 directionVector = new Vector3(0, 1, 0);
                 adjacentCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y + 1)];
-                nextCell = adjacentCell;
 
-                if (nextCell.occupied)
+                objectsToMove = PopulateObjectsToMove(direction, adjacentCell, objectsToMove, position, out movingObjects, out movePlayer);
+
+                /*if (nextCell.occupied)
                 {
                     int i = 2;
                     // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
@@ -196,16 +201,17 @@ public class GridManager : MonoBehaviour
                         i++;
                     } while (nextCell.occupied);
                     movingObjects = true;
-                }
+                }*/
 
                 break;
             case "down":
                 // down
                 directionVector = new Vector3(0, -1, 0);
                 adjacentCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y - 1)];
-                nextCell = adjacentCell;
 
-                if (nextCell.occupied)
+                objectsToMove = PopulateObjectsToMove(direction, adjacentCell, objectsToMove, position, out movingObjects, out movePlayer);
+                
+                /*if (nextCell.occupied)
                 {
                     int i = 2;
                     // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
@@ -216,7 +222,7 @@ public class GridManager : MonoBehaviour
                         i++;
                     } while (nextCell.occupied);
                     movingObjects = true;
-                }
+                }*/
 
                 break;
             default:
@@ -293,7 +299,12 @@ public class GridManager : MonoBehaviour
             */
         }
 
-        UpdatePlayerOnGrid(playerCell, adjacentCell);
+        if (movePlayer)
+        {
+            UpdatePlayerOnGrid(playerCell, adjacentCell);
+        }
+
+        return movePlayer;
     }
 
     public void PlaceObject(GameObject prefab, Cell cell)
@@ -342,5 +353,61 @@ public class GridManager : MonoBehaviour
 
         destination.occupied = true;
         destination.occupiedBy = obj;
+    }
+
+    private Stack<GameObject> PopulateObjectsToMove(string direction, Cell adjacentCell, Stack<GameObject> objectsToMove, Vector3 position, out bool movingObjects, out bool movePlayer)
+    {
+        Cell nextCell = adjacentCell;
+        bool hitWall = false;
+
+        if (nextCell.occupied)
+        {
+            int i = 2;
+            // while the next cell over is occupied (this is for pushing multiple objects simultaneously).
+            do
+            {
+                // if the next cell isn't occupied by an object that stops the player, move objects.
+                if (!nextCell.occupiedBy.CompareTag("STOPS"))
+                {
+                    objectsToMove.Push(nextCell.occupiedBy);
+                    if (direction == "right")
+                    {
+                        nextCell = grid[Mathf.RoundToInt(position.x + i), Mathf.RoundToInt(position.y)];
+                    }
+                    if (direction == "left")
+                    {
+                        nextCell = grid[Mathf.RoundToInt(position.x - i), Mathf.RoundToInt(position.y)];
+                    }
+                    if (direction == "up")
+                    {
+                        nextCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y + i)];
+                    }
+                    if (direction == "down")
+                    {
+                        nextCell = grid[Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y - i)];
+                    }
+                    i++;
+                }
+                else
+                {
+                    hitWall = true;
+                }
+            } while (hitWall == false && nextCell.occupied);
+
+            if (hitWall)
+            {
+                movingObjects = false;
+                movePlayer = false;
+                return objectsToMove;
+            }
+
+            movingObjects = true;
+            movePlayer = true;
+            return objectsToMove;
+        }
+
+        movingObjects = false;
+        movePlayer = true;
+        return objectsToMove;
     }
 }

@@ -6,36 +6,48 @@ public class PlayerMovement : Object
 {
     [SerializeField] GridManager grid;
 
-    bool right; // 1
-    bool left; // -1
-    bool up; // 2
-    bool down; // -2
+    bool right;
+    bool left;
+    bool up;
+    bool down;
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.D))
         {
-            // Move right
-            right = true;
-            grid.UpdateGrid(transform.position, "right");
+            bool move = grid.UpdateGrid(transform.position, "right");
+            if (move)
+            {
+                // Move right
+                right = true;
+            }
         }
         else if (Input.GetKeyDown(KeyCode.A))
         {
-            // Move left
-            left = true;
-            grid.UpdateGrid(transform.position, "left");
+            bool move = grid.UpdateGrid(transform.position, "left");
+            if (move)
+            {
+                // Move left
+                left = true;
+            }
         }
         else if (Input.GetKeyDown(KeyCode.W))
         {
-            // Move up
-            up = true;
-            grid.UpdateGrid(transform.position, "up");
+            bool move = grid.UpdateGrid(transform.position, "up");
+            if (move)
+            {
+                // Move up
+                up = true;
+            }
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
-            // Move down
-            down = true;
-            grid.UpdateGrid(transform.position, "down");
+            bool move = grid.UpdateGrid(transform.position, "down");
+            if (move)
+            {
+                // Move down
+                down = true;
+            }
         }
     }
 
