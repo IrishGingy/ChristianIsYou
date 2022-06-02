@@ -4,93 +4,38 @@ using UnityEngine;
 
 public class Object : MonoBehaviour
 {
-    public List<string> attributes;
-    public bool moving;
+    // game object that represents a series of game objects.
+    public GameObject wordObject;
 
-    [SerializeField] GameObject triggerPrefab;
+    // game object that attributes are added and removed from.
+    public GameObject[] linkedObjects;
 
-    // trigger gameobjects.
-    private GameObject above;
-    private GameObject below;
-    private GameObject rightSide;
-    private GameObject leftSide;
+    bool noun;
+    bool adjective;
 
-    // triggers.
-    protected Trigger aboveTrigger;
-    protected Trigger belowTrigger;
-    protected Trigger rightSideTrigger;
-    protected Trigger leftSideTrigger;
-    protected List<Trigger> triggers = new List<Trigger>();
-
-    private void Awake()
+    private void Start()
     {
-        AddAttribute("a1");
-
-        // instantiate trigger game objects and change their name.
-        above = Instantiate(triggerPrefab, new Vector3(transform.position.x, transform.position.y + 1, transform.position.z), Quaternion.identity, transform);
-        above.name = "Above";
-
-        below = Instantiate(triggerPrefab, new Vector3(transform.position.x, transform.position.y - 1, transform.position.z), Quaternion.identity, transform);
-        below.name = "Below";
-
-        rightSide = Instantiate(triggerPrefab, new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), Quaternion.identity, transform);
-        rightSide.name = "RightSide";
-
-        leftSide = Instantiate(triggerPrefab, new Vector3(transform.position.x - 1, transform.position.y, transform.position.z), Quaternion.identity, transform);
-        leftSide.name = "LeftSide";
-
-        // get trigger components from objects and add them to the list of triggers.
-        aboveTrigger = transform.GetChild(0).GetComponent<Trigger>();
-        triggers.Add(aboveTrigger);
-
-        belowTrigger = transform.GetChild(1).GetComponent<Trigger>();
-        triggers.Add(belowTrigger);
-
-        rightSideTrigger = transform.GetChild(2).GetComponent<Trigger>();
-        triggers.Add(rightSideTrigger);
-
-        leftSideTrigger = transform.GetChild(3).GetComponent<Trigger>();
-        triggers.Add(leftSideTrigger);
-
-        CheckAttribute();
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || 
-            Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
+        if (wordObject.CompareTag("Noun"))
         {
-            moving = true;
+            noun = true;
+        }
+        else if (wordObject.CompareTag("Adjective"))
+        {
+            adjective = true;
         }
     }
 
-    private void FixedUpdate()
+    public void AddAttribute()
     {
-        if (moving)
-        {
-            CheckAttribute();
-        }
+        // if noun, we are adding the attribute (could be either noun or adjective) to this object.
+
+        // if adjective, we check whether it is on the output side.
+        // if it is on the output side, we add it's associated attribute to the noun.
+        // if it is not on the output side, we do nothing.
     }
 
-    public void AddAttribute(string attribute)
+    public void RemoveAttribute()
     {
-        attributes.Add(attribute);
-    }
 
-    public void RemoveAttribute(string attribute)
-    {
-        attributes.Remove(attribute);
-    }
-
-    public virtual void CheckAttribute()
-    {
-        foreach (Trigger t in triggers)
-        {
-            if (t.triggered)
-            {
-                Debug.Log("I am " + t.name + " and I feel personally offended by " + t.triggerer);
-            }
-        }
-        moving = false;
     }
 }

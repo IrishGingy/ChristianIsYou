@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IsOperator : Object
+public class IsOperator : Operator
 {
-    public GameObject left;
-    public GameObject right;
-    public GameObject top;
-    public GameObject bottom;
+    public Object left;
+    public Object right;
+    public Object top;
+    public Object bottom;
 
     private void Start()
     {
@@ -24,24 +24,35 @@ public class IsOperator : Object
                 switch (t.name)
                 {
                     case "LeftSide":
-                        left = t.triggerer;
+                        left.wordObject = t.triggerer;
                         break;
                     case "RightSide":
-                        right = t.triggerer;
+                        right.wordObject = t.triggerer;
                         break;
                     case "Above":
-                        top = t.triggerer;
+                        top.wordObject = t.triggerer;
                         break;
                     case "Below":
-                        bottom = t.triggerer;
+                        bottom.wordObject = t.triggerer;
                         break;
                 }
             }
+
             /*if (t.triggered)
             {
                 Debug.Log("I am " + t.name + " and I feel personally offended by " + t.triggerer);
             }*/
         }
         moving = false;
+
+        // if either the left and right triggers are triggered, or the top and bottom triggers.
+        if (left.wordObject && right.wordObject)
+        {
+            // left.wordObject.tag;
+        }
+        if (top.wordObject && bottom.wordObject)
+        {
+
+        }
     }
 }

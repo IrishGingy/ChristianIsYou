@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d850062e46d19b449b1392e397978bd5, type: 3}
-  m_Name: WallStopsChristian
+  m_Name: StopsChristian
   m_EditorClassIdentifier: 
-  input1: {fileID: 0}
-  input2: {fileID: 0}
+  input1: {fileID: 7510184266109250207, guid: 662ec55abfc6999479a1bf3c86680f50, type: 3}
+  input2: {fileID: 7510184266109250207, guid: e3f7f16e20b805f47b687050de120c5a, type: 3}
   output: {fileID: 0}

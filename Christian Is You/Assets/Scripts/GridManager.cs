@@ -54,13 +54,36 @@ public class GridManager : MonoBehaviour
                 // Place border cells (walls).
                 if (x == 0 || x == (width - 1) || y == 0 || y == (height - 1))
                 {
-                    GameObject wallCell = Instantiate(cellPrefabs[4], new Vector2(x, y), Quaternion.identity, this.transform);
-                    loc[0] = Mathf.RoundToInt(x);
-                    loc[1] = Mathf.RoundToInt(y);
+                    if ((x == 0 && (y == (height/2) - 1 || y == (height / 2))) || (x == (width - 1) && (y == (height / 2) - 1 || y == (height / 2))))
+                    {
+                        GameObject backgroundCell = Instantiate(cellPrefabs[0], new Vector2(x, y), Quaternion.identity, this.transform);
+                        loc[0] = Mathf.RoundToInt(x);
+                        loc[1] = Mathf.RoundToInt(y);
 
-                    cell = wallCell.GetComponent<Cell>();
+                        cell = backgroundCell.GetComponent<Cell>();
 
-                    grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
+                        grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
+                    }
+                    else if ((y == 0 && (x == (width / 2) - 1 || x == (width / 2))) || (y == (height - 1) && (x == (width / 2) - 1 || x == (width / 2))))
+                    {
+                        GameObject backgroundCell = Instantiate(cellPrefabs[0], new Vector2(x, y), Quaternion.identity, this.transform);
+                        loc[0] = Mathf.RoundToInt(x);
+                        loc[1] = Mathf.RoundToInt(y);
+
+                        cell = backgroundCell.GetComponent<Cell>();
+
+                        grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
+                    }
+                    else
+                    {
+                        GameObject wallCell = Instantiate(cellPrefabs[4], new Vector2(x, y), Quaternion.identity, this.transform);
+                        loc[0] = Mathf.RoundToInt(x);
+                        loc[1] = Mathf.RoundToInt(y);
+
+                        cell = wallCell.GetComponent<Cell>();
+
+                        grid[Mathf.RoundToInt(x), Mathf.RoundToInt(y)] = cell;
+                    }
                 }
                 else
                 {
